@@ -8,10 +8,12 @@ export default function Home() {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/${isLogin ? "login" : "signup"}`, {
         email,
@@ -23,6 +25,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Authentication error:", error)
+      setError("Failed to authenticate. Please try again.")
     }
   }
 
@@ -32,6 +35,7 @@ export default function Home() {
         <h1 className="text-2xl font-bold mb-6 text-center">
           {isLogin ? "Login" : "Sign Up"} to Hackerug06 Technologies
         </h1>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -76,4 +80,4 @@ export default function Home() {
   )
 }
 
-  
+         
