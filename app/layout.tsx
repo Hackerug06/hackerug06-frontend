@@ -1,4 +1,5 @@
 import type React from "react"
+import "./globals.css"
 
 export const metadata = {
   title: "Hackerug06 Technologies",
@@ -17,3 +18,4 @@ export default function RootLayout({
   )
 }
 
+    
