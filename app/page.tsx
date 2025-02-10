@@ -8,12 +8,14 @@ export default function Home() {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [message, setMessage] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setMessage("")
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/${isLogin ? "login" : "signup"}`, {
         email,
@@ -21,11 +23,20 @@ export default function Home() {
       })
       if (response.data.token) {
         localStorage.setItem("token", response.data.token)
-        router.push("/dashboard")
+        if (!isLogin) {
+          setMessage("Thank You For Signing Up With Hackerug06 Technologies")
+          setTimeout(() => router.push("/dashboard"), 3000)
+        } else {
+          router.push("/dashboard")
+        }
       }
     } catch (error) {
-      console.error("Authentication error:", error)
-      setError("Failed to authenticate. Please try again.")
+      console.error("Authentication error:", error.response?.data || error.message)
+      if (error.response?.data?.error === "User already exists") {
+        setError("You already created an account with Hackerug06 Technologies")
+      } else {
+        setError("Failed to authenticate. Please try again.")
+      }
     }
   }
 
@@ -36,6 +47,7 @@ export default function Home() {
           {isLogin ? "Login" : "Sign Up"} to Hackerug06 Technologies
         </h1>
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -71,7 +83,14 @@ export default function Home() {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <button onClick={() => setIsLogin(!isLogin)} className="text-sm text-blue-600 hover:underline">
+          <button
+            onClick={() => {
+              setIsLogin(!isLogin)
+              setError("")
+              setMessage("")
+            }}
+            className="text-sm text-blue-600 hover:underline"
+          >
             {isLogin ? "Need an account? Sign Up" : "Already have an account? Login"}
           </button>
         </div>
@@ -80,4 +99,4 @@ export default function Home() {
   )
 }
 
-         
+  
