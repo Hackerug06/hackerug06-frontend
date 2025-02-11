@@ -30,9 +30,9 @@ export default function Home() {
           router.push("/dashboard")
         }
       }
-    } catch (error) {
-      console.error("Authentication error:", error.response?.data || error.message)
-      if (error.response?.data?.error === "User already exists") {
+    } catch (error: unknown) {
+      console.error("Authentication error:", error instanceof Error ? error.message : String(error))
+      if (error instanceof Error && error.message === "User already exists") {
         setError("You already created an account with Hackerug06 Technologies")
       } else {
         setError("Failed to authenticate. Please try again.")
@@ -99,4 +99,4 @@ export default function Home() {
   )
 }
 
-  
+    
