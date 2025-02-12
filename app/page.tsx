@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation"
 
 export default function Home() {
   const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState("")
+  const [isEmail, setIsEmail] = useState(true)
+  const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
@@ -17,26 +18,25 @@ export default function Home() {
     setError("")
     setMessage("")
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/${isLogin ? "login" : "signup"}`, {
-        email,
-        password,
-      })
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token)
-        if (!isLogin) {
-          setMessage("Thank You For Signing Up With Hackerug06 Technologies")
-          setTimeout(() => router.push("/dashboard"), 3000)
-        } else {
+      if (isLogin) {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, { identifier, password })
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token)
           router.push("/dashboard")
         }
-      }
-    } catch (error: unknown) {
-      console.error("Authentication error:", error instanceof Error ? error.message : String(error))
-      if (error instanceof Error && error.message === "User already exists") {
-        setError("You already created an account with Hackerug06 Technologies")
       } else {
-        setError("Failed to authenticate. Please try again.")
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/signup`,
+          isEmail ? { email: identifier, password } : { phoneNumber: identifier, password },
+        )
+        setMessage(response.data.message)
+        if (!isEmail && response.data.verificationToken) {
+          router.push(`/verify-phone?token=${response.data.verificationToken}`)
+        }
       }
+    } catch (error) {
+      console.error("Authentication error:", error.response?.data || error.message)
+      setError(error.response?.data?.error || "Failed to authenticate. Please try again.")
     }
   }
 
@@ -49,15 +49,27 @@ export default function Home() {
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!isLogin && (
+            <div>
+              <label className="inline-flex items-center">
+                <input type="radio" className="form-radio" checked={isEmail} onChange={() => setIsEmail(true)} />
+                <span className="ml-2">Email</span>
+              </label>
+              <label className="inline-flex items-center ml-6">
+                <input type="radio" className="form-radio" checked={!isEmail} onChange={() => setIsEmail(false)} />
+                <span className="ml-2">Phone</span>
+              </label>
+            </div>
+          )}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
+            <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
+              {isEmail ? "Email" : "Phone Number"}
             </label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type={isEmail ? "email" : "tel"}
+              id="identifier"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
