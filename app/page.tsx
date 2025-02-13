@@ -3,6 +3,7 @@
 import { useState } from "react"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import OptimizedImage from "../components/OptimizedImage"
 
 export default function Home() {
   const [isLogin, setIsLogin] = useState(true)
@@ -43,6 +44,12 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <OptimizedImage
+          src="/placeholder.svg?height=100&width=100"
+          alt="Hackerug06 Technologies Logo"
+          width={100}
+          height={100}
+        />
         <h1 className="text-2xl font-bold mb-6 text-center">
           {isLogin ? "Login" : "Sign Up"} to Hackerug06 Technologies
         </h1>
