@@ -34,7 +34,7 @@ export default function Home() {
           router.push(`/verify-phone?token=${response.data.verificationToken}`)
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Authentication error:", error.response?.data || error.message)
       setError(error.response?.data?.error || "Failed to authenticate. Please try again.")
     }
